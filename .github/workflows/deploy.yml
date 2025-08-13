@@ -32,7 +32,7 @@ jobs:
           vercel-org-id: ${{ secrets.VERCEL_ORG_ID }}
           vercel-project-id: ${{ secrets.VERCEL_PROJECT_ID }}
           working-directory: ./
-          # 对 PR 使用预览模式，对 main 分支使用生产模式
-          vercel-args: ${{ github.event_name == 'pull_request' ? '--preview' : '--prod' }}
-          # 如果是 PR，设置预览评论
+          # 修复条件表达式语法
+          vercel-args: ${{ github.event_name == 'pull_request' && '--preview' || '--prod' }}
+          # 修复条件表达式语法
           vercel-comment: ${{ github.event_name == 'pull_request' && 'Preview deployed' || '' }}
