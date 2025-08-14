@@ -1,5 +1,9 @@
 {
   "compilerOptions": {
+    "baseUrl": ".", // 基础路径
+    "paths": {
+      "@/*": ["src/*"] // 映射 @/ 到 src/
+    },
     "target": "ES2020",
     "useDefineForClassFields": true,
     "lib": ["ESNext", "DOM", "DOM.Iterable"],

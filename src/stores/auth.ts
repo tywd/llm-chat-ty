@@ -17,6 +17,7 @@ export const useAuthStore = defineStore('auth', () => {
   const isAuthenticated = computed(() => !!token.value)
 
   const login = async (email: string, password: string) => {
+    console.log(email, password, name)
     isLoading.value = true
     try {
       // 模拟 API 调用
@@ -43,6 +44,7 @@ export const useAuthStore = defineStore('auth', () => {
   }
 
   const register = async (email: string, password: string, name: string) => {
+    console.log(email, password, name)
     isLoading.value = true
     try {
       // 模拟 API 调用

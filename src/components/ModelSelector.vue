@@ -38,7 +38,7 @@ import { ref } from 'vue'
 import { ChevronDownIcon } from '@heroicons/vue/24/outline'
 import { models, type AIModel } from '@/config/models'
 
-const props = defineProps<{
+defineProps<{
   selectedModel: AIModel | null
 }>()
 

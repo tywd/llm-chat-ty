@@ -25,7 +25,7 @@ describe('Chat Store', () => {
   it('should add messages to current session', () => {
     const store = useChatStore()
     store.createSession()
-    store.sendMessage('Hello', 'user')
+    store.sendMessage('Hello')
     
     expect(store.currentSession?.messages).toHaveLength(2)
     expect(store.currentSession?.messages[0].content).toBe('Hello')

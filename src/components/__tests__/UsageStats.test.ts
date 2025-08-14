@@ -17,8 +17,8 @@ describe('UsageStats', () => {
   it('displays correct stats', () => {
     const chatStore = useChatStore()
     chatStore.createSession('Test Session')
-    chatStore.sendMessage('Hello', 'user')
-    chatStore.sendMessage('Hi', 'assistant')
+    chatStore.sendMessage('Hello')
+    chatStore.sendMessage('Hi')
 
     const wrapper = mount(UsageStats)
     expect(wrapper.text()).toContain('总消息数')

@@ -1,11 +1,10 @@
 import { defineStore } from 'pinia'
 import { aiService } from '@/services/api'
-import type { AIModel } from '@/config/models'
 
 export interface Message {
   id: string
   content: string
-  role: 'user' | 'assistant'
+  role: 'user' | 'assistant' | "system"
   timestamp: Date
   model?: string
 }
@@ -27,14 +26,17 @@ export const useChatStore = defineStore('chat', {
     isLoading: false,
     isStreaming: false,
   }),
-
+  
   getters: {
     currentSession: (state) => {
       return state.sessions.find(s => s.id === state.currentSessionId)
     },
     
     allMessages: (state) => {
-      return state.currentSession?.messages || []
+      // 直接通过 state 找到当前会话（复现 currentSession 的逻辑）
+      const currentSession = state.sessions.find(s => s.id === state.currentSessionId);
+      // 用可选链和默认值保证返回类型是 Message[]，无需 as any
+      return currentSession?.messages || []; 
     },
   },
 
@@ -131,6 +133,7 @@ export const useChatStore = defineStore('chat', {
     },
 
     deleteSession(sessionId: string) {
+      console.log(sessionId)
       this.sessions = []
       this.currentSessionId = null
     }
