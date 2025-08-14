@@ -129,5 +129,10 @@ export const useChatStore = defineStore('chat', {
         this.currentSession!.updatedAt = new Date()
       }
     },
+
+    deleteSession(sessionId: string) {
+      this.sessions = []
+      this.currentSessionId = null
+    }
   },
 })

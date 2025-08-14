@@ -2,36 +2,31 @@ import { describe, it, expect, vi } from 'vitest'
 import { mount } from '@vue/test-utils'
 import { createPinia, setActivePinia } from 'pinia'
 import { createRouter, createWebHistory } from 'vue-router'
-import App from '../App.vue'
-import DefaultLayout from '@/layouts/DefaultLayout.vue'
+import LoginView from '../LoginView.vue'
 
 // 创建测试路由
 const router = createRouter({
   history: createWebHistory(),
-  routes: [
-    {
-      path: '/',
-      component: { template: '<div>Home</div>' }
-    }
-  ]
+  routes: [{ path: '/login', component: LoginView }]
 })
 
-describe('App', () => {
+describe('LoginView', () => {
   beforeEach(() => {
     setActivePinia(createPinia())
   })
 
   it('renders properly', async () => {
-    const wrapper = mount(App, {
+    const wrapper = mount(LoginView, {
       global: {
         plugins: [router],
         stubs: {
-          'router-link': true,
-          'router-view': true,
+          'router-link': true
         }
       }
     })
     
-    expect(wrapper.findComponent(DefaultLayout).exists()).toBe(true)
+    expect(wrapper.find('h2').text()).toBe('登录账户')
+    expect(wrapper.find('input[type="email"]').exists()).toBe(true)
+    expect(wrapper.find('input[type="password"]').exists()).toBe(true)
   })
 })
