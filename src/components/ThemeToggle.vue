@@ -13,6 +13,15 @@
 import { SunIcon, MoonIcon } from '@heroicons/vue/24/outline'
 import { useDark, useToggle } from '@vueuse/core'
 
-const isDark = useDark()
+// 确保主题切换正常工作
+const isDark = useDark({
+  selector: 'html',
+  attribute: 'class',
+  valueDark: 'dark',
+  valueLight: '',
+  storageKey: 'theme-preference',
+  storage: localStorage,
+})
+
 const toggleTheme = useToggle(isDark)
 </script>

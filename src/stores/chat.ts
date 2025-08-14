@@ -1,4 +1,6 @@
 import { defineStore } from 'pinia'
+import { aiService } from '@/services/api'
+import type { AIModel } from '@/config/models'
 
 export interface Message {
   id: string
@@ -14,12 +16,16 @@ export interface ChatSession {
   messages: Message[]
   createdAt: Date
   updatedAt: Date
+  model: string
 }
 
 export const useChatStore = defineStore('chat', {
   state: () => ({
     sessions: [] as ChatSession[],
     currentSessionId: null as string | null,
+    currentModel: 'gpt-3.5-turbo',
+    isLoading: false,
+    isStreaming: false,
   }),
 
   getters: {
@@ -32,44 +38,95 @@ export const useChatStore = defineStore('chat', {
     },
   },
 
+  // 修复模型切换
   actions: {
-    createSession(title: string = '新对话') {
+    setCurrentModel(modelId: string) {
+      this.currentModel = modelId
+      // 创建新会话时使用当前模型
+      if (this.currentSession) {
+        this.currentSession.model = modelId
+      }
+    },
+  
+    createSession(title: string = '新对话', model?: string) {
       const session: ChatSession = {
         id: Date.now().toString(),
         title,
         messages: [],
         createdAt: new Date(),
         updatedAt: new Date(),
+        model: model || this.currentModel,
       }
       this.sessions.unshift(session)
       this.currentSessionId = session.id
       return session
     },
-
-    addMessage(content: string, role: 'user' | 'assistant' = 'user', model?: string) {
+  
+    async sendMessage(content: string, useStreaming: boolean = true) {
       if (!this.currentSession) {
-        this.createSession()
+        this.createSession(undefined, this.currentModel)
       }
-
-      const message: Message = {
+  
+      // 确保会话使用当前模型
+      this.currentSession!.model = this.currentModel
+  
+      // 添加用户消息
+      const userMessage: Message = {
         id: Date.now().toString(),
         content,
-        role,
+        role: 'user',
         timestamp: new Date(),
-        model,
       }
+      this.currentSession!.messages.push(userMessage)
 
-      this.currentSession!.messages.push(message)
-      this.currentSession!.updatedAt = new Date()
-    },
+      this.isLoading = true
+      this.isStreaming = useStreaming
 
-    deleteSession(sessionId: string) {
-      const index = this.sessions.findIndex(s => s.id === sessionId)
-      if (index > -1) {
-        this.sessions.splice(index, 1)
-        if (this.currentSessionId === sessionId) {
-          this.currentSessionId = this.sessions[0]?.id || null
+      try {
+        if (useStreaming) {
+          // 流式响应
+          const assistantMessage: Message = {
+            id: (Date.now() + 1).toString(),
+            content: '',
+            role: 'assistant',
+            timestamp: new Date(),
+            model: this.currentSession!.model,
+          }
+          this.currentSession!.messages.push(assistantMessage)
+
+          await aiService.sendMessageStream(
+            {
+              model: this.currentSession!.model,
+              messages: this.currentSession!.messages.filter(m => m.role !== 'system'),
+              stream: true,
+            },
+            (chunk) => {
+              const lastMessage = this.currentSession!.messages[this.currentSession!.messages.length - 1]
+              lastMessage.content += chunk
+            }
+          )
+        } else {
+          // 普通响应
+          const response = await aiService.sendMessage({
+            model: this.currentSession!.model,
+            messages: this.currentSession!.messages.filter(m => m.role !== 'system'),
+          })
+
+          const assistantMessage: Message = {
+            id: (Date.now() + 1).toString(),
+            content: response.choices[0].message.content,
+            role: 'assistant',
+            timestamp: new Date(),
+            model: this.currentSession!.model,
+          }
+          this.currentSession!.messages.push(assistantMessage)
         }
+      } catch (error) {
+        console.error('发送消息失败:', error)
+      } finally {
+        this.isLoading = false
+        this.isStreaming = false
+        this.currentSession!.updatedAt = new Date()
       }
     },
   },

@@ -26,9 +26,17 @@
             {{ session.title }}
           </div>
           <div class="text-xs text-gray-500 dark:text-gray-400">
-            {{ formatDate(session.updatedAt) }}
+            {{ models.find(m => m.id === session.model)?.name }}
           </div>
         </div>
+      </div>
+
+      <!-- Model Selection -->
+      <div class="p-4 border-t border-gray-200 dark:border-gray-700">
+        <ModelSelector
+          :selected-model="currentModel"
+          @update:selected-model="handleModelChange"
+        />
       </div>
     </aside>
 
@@ -52,7 +60,8 @@
                 : 'bg-white dark:bg-gray-800 text-gray-900 dark:text-white shadow-sm border border-gray-200 dark:border-gray-700'
             ]"
           >
-            {{ message.content }}
+            <div v-if="message.content" v-html="formatMessage(message.content)"></div>
+            <div v-else-if="isStreaming && message.role === 'assistant'" class="animate-pulse">正在输入...</div>
           </div>
         </div>
         
@@ -71,13 +80,14 @@
           <textarea
             v-model="inputMessage"
             @keydown.enter.prevent="sendMessage"
+            :disabled="isLoading"
             placeholder="输入消息..."
-            class="flex-1 resize-none rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 focus:ring-2 focus:ring-blue-500 focus:border-transparent px-3 py-2"
+            class="flex-1 resize-none rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 focus:ring-2 focus:ring-blue-500 focus:border-transparent px-3 py-2 disabled:opacity-50"
             rows="1"
           />
           <button
             @click="sendMessage"
-            :disabled="!inputMessage.trim()"
+            :disabled="!inputMessage.trim() || isLoading"
             class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
           >
             <PaperAirplaneIcon class="w-5 h-5" />
@@ -92,6 +102,8 @@
 import { ref, computed } from 'vue'
 import { PlusIcon, PaperAirplaneIcon, ChatBubbleLeftRightIcon } from '@heroicons/vue/24/outline'
 import { useChatStore } from '@/stores/chat'
+import { models } from '@/config/models'
+import ModelSelector from '@/components/ModelSelector.vue'
 
 const chatStore = useChatStore()
 const inputMessage = ref('')
@@ -99,6 +111,9 @@ const inputMessage = ref('')
 const sessions = computed(() => chatStore.sessions)
 const currentSessionId = computed(() => chatStore.currentSessionId)
 const messages = computed(() => chatStore.allMessages)
+const currentModel = computed(() => models.find(m => m.id === chatStore.currentModel) || null)
+const isLoading = computed(() => chatStore.isLoading)
+const isStreaming = computed(() => chatStore.isStreaming)
 
 const createNewSession = () => {
   chatStore.createSession()
@@ -108,24 +123,22 @@ const selectSession = (sessionId: string) => {
   chatStore.currentSessionId = sessionId
 }
 
-const sendMessage = () => {
+const handleModelChange = (model: any) => {
+  chatStore.setCurrentModel(model.id)
+}
+
+const sendMessage = async () => {
   if (inputMessage.value.trim()) {
-    chatStore.addMessage(inputMessage.value.trim())
+    await chatStore.sendMessage(inputMessage.value.trim(), true)
     inputMessage.value = ''
   }
 }
 
-const formatDate = (date: Date) => {
-  return new Intl.DateTimeFormat('zh-CN', {
-    month: 'short',
-    day: 'numeric',
-    hour: '2-digit',
-    minute: '2-digit'
-  }).format(date)
-}
-
-// 初始化会话
-if (!currentSessionId.value) {
-  chatStore.createSession('欢迎使用')
+const formatMessage = (content: string) => {
+  // 简单的代码高亮
+  return content
+    .replace(/```(\w+)?\n([\s\S]*?)```/g, '<pre class="bg-gray-100 dark:bg-gray-700 p-2 rounded text-sm overflow-x-auto"><code>$2</code></pre>')
+    .replace(/`([^`]+)`/g, '<code class="bg-gray-100 dark:bg-gray-700 px-1 rounded text-sm">$1</code>')
+    .replace(/\n/g, '<br>')
 }
 </script>
