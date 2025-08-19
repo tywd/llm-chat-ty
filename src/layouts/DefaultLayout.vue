@@ -7,7 +7,7 @@
           <div class="flex items-center space-x-8">
             <h1 class="text-xl font-semibold text-gray-900 dark:text-white">LLM Chat</h1>
             <nav class="hidden md:flex space-x-4">
-              <router-link 
+              <!-- <router-link 
                 to="/" 
                 class="text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white px-3 py-2 rounded-md text-sm font-medium"
                 :class="$route.path === '/' ? 'text-blue-600 dark:text-blue-400' : ''"
@@ -27,14 +27,14 @@
                 :class="$route.path === '/stats' ? 'text-blue-600 dark:text-blue-400' : ''"
               >
                 统计
-              </router-link>
+              </router-link> -->
             </nav>
           </div>
           
           <div class="flex items-center space-x-4">
             <!-- 修复：添加主题切换按钮 -->
             <ThemeToggle />
-            <div v-if="authStore.isAuthenticated" class="flex items-center space-x-4">
+            <!-- <div v-if="authStore.isAuthenticated" class="flex items-center space-x-4">
               <span class="text-sm text-gray-700 dark:text-gray-300">{{ authStore.user?.name }}</span>
               <button
                 @click="handleLogout"
@@ -56,7 +56,7 @@
               >
                 注册
               </router-link>
-            </div>
+            </div> -->
           </div>
         </div>
       </div>
@@ -71,14 +71,14 @@
 
 <script setup lang="ts">
 import { useRouter } from 'vue-router'
-import { useAuthStore } from '@/stores/auth'
+// import { useAuthStore } from '@/stores/auth'
 import ThemeToggle from '@/components/ThemeToggle.vue'
 
-const authStore = useAuthStore()
+// const authStore = useAuthStore()
 const router = useRouter()
 
 const handleLogout = () => {
-  authStore.logout()
+  // authStore.logout()
   router.push('/login')
 }
 </script>
