@@ -38,13 +38,25 @@ if (!qiankunWindow.__POWERED_BY_QIANKUN__) {
 }
 
 // qiankun 生命周期
-renderWithQiankun({
+const lifecycle: any = renderWithQiankun({
     mount(props) {
+        console.log('mount', props)
         render(props)
     },
-    bootstrap() { },
+    bootstrap() {
+        console.log('bootstrap')
+    },
     unmount() {
+        console.log('unmount')
         app.unmount()
     },
-    update() { }, // 添加这一行
+    update() {
+        console.log('update')
+    },
 })
+
+// 导出 qiankun 生命周期钩子
+export const bootstrap = lifecycle.bootstrap
+export const mount = lifecycle.mount
+export const unmount = lifecycle.unmount
+export const update = lifecycle.update
