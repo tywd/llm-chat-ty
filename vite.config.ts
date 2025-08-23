@@ -22,7 +22,7 @@ export default defineConfig({
    // 动态设置 base 路径：
   // - 独立运行时：使用 Vercel 部署的根路径（或 '/'）
   // - 被 Qiankun 加载时：使用子应用的部署根路径（如 '/sub-app3/' 或子应用的 Vercel 域名）
-  base: (import.meta as any).env.MODE === 'production' 
+  base: process.env.NODE_ENV === 'production' 
     ? 'https://llm-chat-ty.vercel.app/'  // 子应用在 Vercel 的实际部署根路径（必须以 / 结尾）
     : '/',  // 开发环境用相对路径
   build: {
