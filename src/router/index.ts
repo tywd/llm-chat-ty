@@ -1,5 +1,6 @@
-import { createRouter, createWebHashHistory } from 'vue-router'
+import { createRouter, createWebHashHistory, createWebHistory } from 'vue-router'
 import { useAuthStore } from '@/stores/auth'
+import { qiankunWindow } from 'vite-plugin-qiankun/dist/helper'
 
 const routes = [
   {
@@ -37,7 +38,9 @@ const routes = [
 ]
 
 const router = createRouter({
-  history: createWebHashHistory(),
+  history: createWebHistory(
+    qiankunWindow.__POWERED_BY_QIANKUN__ ? '/sub-app3' : '/'
+  ),
   routes
 })
 

@@ -5,10 +5,20 @@ import App from './App.vue'
 import './style.css'
 import { useAuthStore } from '@/stores/auth'
 import { renderWithQiankun, qiankunWindow } from 'vite-plugin-qiankun/dist/helper'
-
+// declare global {
+//   interface Window {
+//     __POWERED_BY_QIANKUN__: boolean;
+//     __webpack_public_path__: string;
+//   }
+// }
 let app: any
 const pinia = createPinia()
-
+// 动态设置 publicPath（针对 Vite 打包后的资源路径）
+if (qiankunWindow.__POWERED_BY_QIANKUN__) {
+  // 若子应用部署在 https://your-subapp3.vercel.app/，则 __webpack_public_path__ 设为该地址
+  // @ts-ignore
+  __webpack_public_path__ = 'https://llm-chat-ty.vercel.app/'
+}
 function render(props: any = {}) {
     app = createApp(App)
     const appContainer = props.container ? props.container.querySelector('#app') : '#app'
