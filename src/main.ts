@@ -37,26 +37,36 @@ if (!qiankunWindow.__POWERED_BY_QIANKUN__) {
     render()
 }
 
-// qiankun 生命周期
-const lifecycle: any = renderWithQiankun({
-    mount(props) {
-        console.log('mount', props)
-        render(props)
-    },
-    bootstrap() {
-        console.log('bootstrap')
-    },
-    unmount() {
-        console.log('unmount')
-        app.unmount()
-    },
-    update() {
-        console.log('update')
-    },
-})
+// 定义生命周期函数
+function bootstrap() {
+    console.log('bootstrap')
+    return Promise.resolve()
+}
+
+function mount(props: any) {
+    console.log('mount', props)
+    render(props)
+    return Promise.resolve()
+}
+
+function unmount() {
+    console.log('unmount')
+    app.unmount()
+    return Promise.resolve()
+}
+
+function update(props: any) {
+    console.log('update', props)
+    return Promise.resolve()
+}
 
 // 导出 qiankun 生命周期钩子
-export const bootstrap = lifecycle.bootstrap
-export const mount = lifecycle.mount
-export const unmount = lifecycle.unmount
-export const update = lifecycle.update
+export { bootstrap, mount, unmount, update }
+
+// 使用 renderWithQiankun 处理 qiankun 环境
+renderWithQiankun({
+    bootstrap,
+    mount,
+    unmount,
+    update
+})
